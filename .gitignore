@@ -1,0 +1,15 @@
+.DS_Store
+
+.env
+.venv
+.env.production
+.env.development
+.flaskenv
+env/
+venv/
+.vscode
+
+__pycache__/
+build/
+dist/
+.idea/
