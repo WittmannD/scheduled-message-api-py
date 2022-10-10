@@ -1,7 +1,7 @@
 import os
 from http import HTTPStatus
 
-from flask import make_response
+from flask import make_response, current_app
 from flask_restful import Resource
 from vk_api import VkApi
 
@@ -24,6 +24,7 @@ class ChatApi(Resource):
     def get(self, current_user, args):
         session = VkApi(token=current_user.get('token'))
         vk_api = session.get_api()
+        current_app.logger.info(current_user, args)
 
         kwargs = dict()
         kwargs.setdefault('peer_ids', args.get('peer_id'))
@@ -31,4 +32,4 @@ class ChatApi(Resource):
 
         response = vk_api.messages.getConversationsById(**kwargs)
 
-        make_response(response['items'], HTTPStatus.OK)
+        make_response(response, HTTPStatus.OK)
