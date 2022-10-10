@@ -1,32 +1,46 @@
 import math
+import os
 from datetime import timedelta, datetime
 
-from sqlalchemy import and_
+import sqlalchemy
+from sqlalchemy import and_, orm
+from sqlalchemy.ext.automap import automap_base
 
-from web.api.models.BaseModel import db
-from web.api.models import ScheduledMessageModel
+from web.api.models.ScheduledMessageModel import ScheduledMessageModel
 
 
-def fetch_messages(period: int):
-    now = datetime.utcnow()
-    from_time, to_time = (
-        now - timedelta(seconds=math.floor(period / 2)),
-        now + timedelta(seconds=math.ceil(period / 2))
-    )
+class DB:
+    base = automap_base()
+    engine = sqlalchemy.create_engine(os.environ.get('DATABASE_URL'))
+    base.prepare(autoload_with=engine, reflect=True)
+    session = orm.Session(bind=engine)
 
-    messages = ScheduledMessageModel.find_by(
-        stmt=and_(
-            ScheduledMessageModel.time_for_dispatch >= from_time,
-            ScheduledMessageModel.time_for_dispatch <= to_time,
-            ScheduledMessageModel.status == 'await'
+    ScheduledMessageQuery = session.query(ScheduledMessageModel)
+
+    @classmethod
+    def fetch_messages(cls, period: int):
+        now = datetime.utcnow()
+        from_time, to_time = (
+            now - timedelta(seconds=math.floor(period / 2)),
+            now + timedelta(seconds=math.ceil(period / 2))
         )
-    )
 
-    for message in messages:
-        print(message)
+        query = cls.ScheduledMessageQuery.filter(
+            and_(
+                ScheduledMessageModel.time_for_dispatch >= from_time,
+                ScheduledMessageModel.time_for_dispatch <= to_time,
+                ScheduledMessageModel.status == 'await'
+            )
+        )
+        messages = query.all()
 
-        message.status = 'processed'
-        db.session.add(message)
+        for message in messages:
+            message.status = 'processed'
+            cls.session.add(message)
 
-    db.session.commit()
-    return messages
+        cls.commit()
+        return messages
+
+    @classmethod
+    def commit(cls):
+        cls.session.commit()

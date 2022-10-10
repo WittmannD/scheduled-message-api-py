@@ -27,7 +27,8 @@ class ScheduleApi(Resource):
             page=args.get('page'),
             per_page=args.get('per_page'),
             order_by=args.get('order_by'),
-            user_id=current_user.get('user_id'),
+            peer_id=args.get('peer_id'),
+            user_id=current_user.get('user_id')
         )
 
         return make_response(jsonify([message.to_dict() for message in messages]), HTTPStatus.OK)

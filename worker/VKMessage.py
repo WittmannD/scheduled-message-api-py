@@ -1,12 +1,16 @@
+import logging
 import os
+import traceback
 
 from aiovk import TokenSession, API
 from vk_api.utils import get_random_id
 
-from web.api.models.BaseModel import db
 from web.api.models.ScheduledMessageModel import ScheduledMessageModel
+from worker.common.utils import DB
 
 VK_API_VERSION = os.environ.get('VK_API_VERSION', 5.131)
+
+logger = logging.getLogger('worker')
 
 
 class VKMessage:
@@ -15,11 +19,11 @@ class VKMessage:
 
     def _on_success(self):
         self.model.status = 'sent'
-        db.session.add(self.model)
+        DB.session.add(self.model)
 
     def _on_error(self):
         self.model.status = 'failed'
-        db.session.add(self.model)
+        DB.session.add(self.model)
 
     async def send(self):
         try:
@@ -38,6 +42,7 @@ class VKMessage:
 
         except Exception as err:
             self._on_error()
+            logger.error(str(err), exc_info=err)
 
         else:
             self._on_success()

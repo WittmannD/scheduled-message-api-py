@@ -2,7 +2,7 @@ import json
 from http import HTTPStatus
 from base64 import b64decode
 from functools import wraps
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, current_app
 from flask_restful import abort
 
 
@@ -22,7 +22,7 @@ def token_required(f):
             if not current_user:
                 raise AssertionError()
 
-        except (ValueError, AssertionError, json.JSONDecodeError) as err:
+        except (ValueError, TypeError, AssertionError, json.JSONDecodeError) as err:
             return abort(HTTPStatus.UNAUTHORIZED)
 
         return f(*args, current_user, **kwargs)

@@ -8,7 +8,7 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
 
 class ProductionConfig(Config):
@@ -21,6 +21,7 @@ class DevelopmentConfig(Config):
     ENV = 'development'
     FLASK_ENV = 'development'
     DEBUG = True
+    FLASK_DEBUG = True
     DEVELOPMENT = True
     SQLALCHEMY_ECHO = False
     SECRET_KEY = 'development_secret_key'

@@ -1,3 +1,4 @@
+import logging
 import os
 import web.api.common.constants as constants
 
@@ -23,9 +24,11 @@ def init_routes(api):
 
 
 def create_app():
-    load_dotenv(f'../.env.{os.environ.get("ENV", "development")}')
-
     app = Flask(__name__)
+
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
     app.config.from_object(os.environ.get('FLASK_APP_SETTINGS'))
     init_db(app)
@@ -36,7 +39,6 @@ def create_app():
     CORS(api_blueprint)
 
     init_routes(api)
-
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
     return app

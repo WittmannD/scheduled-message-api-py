@@ -1,22 +1,31 @@
 import asyncio
+import logging
 import os
+import sys
 from datetime import datetime
 
-
-from web.api.models.BaseModel import db
 from worker.VKMessage import VKMessage
-from worker.common.utils import fetch_messages
+from worker.common.utils import DB
 
 QUERY_INTERVAL_S = int(os.environ.get('QUERY_INTERVAL_S', 15))
 TIME_RANGE_S = int(os.environ.get('TIME_RANGE_S', 60))
 MAX_TASKS = 100
+
+logger = logging.getLogger('worker')
+logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 async def worker(name, queue) -> None:
     while True:
         message = await queue.get()
 
-        dispatch_time = message.model.next_check_at.replace(tzinfo=None)
+        dispatch_time = message.model.time_for_dispatch.replace(tzinfo=None)
 
         while dispatch_time > datetime.utcnow():
             await asyncio.sleep(0.01)
@@ -29,13 +38,13 @@ async def worker(name, queue) -> None:
 async def dispatcher(queue) -> None:
     while True:
         start_time = datetime.utcnow()
-        messages = fetch_messages(TIME_RANGE_S)
-        print(f'fetched {len(messages)} messages')
+        messages = DB.fetch_messages(TIME_RANGE_S)
+        logger.info(f'fetched {len(messages)} messages')
 
         await asyncio.gather(*[queue.put(VKMessage(message)) for message in messages])
 
         await queue.join()
-        db.session.commit()
+        DB.commit()
 
         delay = max(0.0, float(QUERY_INTERVAL_S) - (datetime.utcnow().timestamp() - start_time.timestamp()))
 
@@ -47,6 +56,7 @@ async def run():
     task_dispatcher = None
     queue = asyncio.Queue()
 
+    logger.info('starting task pull')
     for i in range(MAX_TASKS):
         task = asyncio.create_task(worker(f'worker-{i}', queue))
         tasks.append(task)
@@ -56,6 +66,7 @@ async def run():
 
 
 def start():
+    logger.info('worker starting')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
 
