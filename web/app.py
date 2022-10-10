@@ -2,12 +2,12 @@ import logging
 import os
 import web.api.common.constants as constants
 
-from dotenv import load_dotenv
 from flask import Flask, Blueprint
 from flask_cors import CORS
 from flask_restful import Api
 
 from web.api.models.BaseModel import db
+from web.api.resources.ChatApi import ChatApi
 from web.api.resources.ScheduleApi import ScheduleApi
 
 
@@ -21,6 +21,7 @@ def init_db(app):
 
 def init_routes(api):
     api.add_resource(ScheduleApi, constants.SCHEDULE_API_ROUTE)
+    api.add_resource(ChatApi, constants.CHAT_API_ROUTE)
 
 
 def create_app():
