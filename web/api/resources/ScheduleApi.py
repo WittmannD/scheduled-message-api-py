@@ -65,7 +65,7 @@ class ScheduleApi(Resource):
     def delete(self, current_user, args):
         db.session.query(ScheduledMessageModel).filter(
             and_(
-                ScheduledMessageModel.uid.in_(args.get('ids')),
+                ScheduledMessageModel.id.in_(args.get('ids')),
                 ScheduledMessageModel.user_id == current_user.get('user_id')
             )
         ).delete()
@@ -76,5 +76,4 @@ class ScheduleApi(Resource):
         except IntegrityError:
             db.session.rollback()
 
-        else:
-            return make_response(None, HTTPStatus.NO_CONTENT)
+        return make_response(None, HTTPStatus.NO_CONTENT)
