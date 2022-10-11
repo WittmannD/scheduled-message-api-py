@@ -1,7 +1,7 @@
 ### Send POST request with json body
 POST http://127.0.0.1:5000/api/schedule
 Content-Type: application/json
-X-API-Key: $X_API_KEY
+X-API-Key: {{X_API_KEY}}
 
 {
   "content": "test message",
@@ -12,4 +12,8 @@ X-API-Key: $X_API_KEY
 
 ### Get
 GET http://127.0.0.1:5000/api/schedule?peer_id=2000000005
-X-API-Key: $X_API_KEY
+X-API-Key: {{X_API_KEY}}
+
+### Get chat metadata
+GET http://127.0.0.1:5000/api/chat?peer_id=2000000004
+X-API-Key: {{X_API_KEY}}

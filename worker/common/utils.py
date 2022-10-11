@@ -11,7 +11,7 @@ from web.api.models.ScheduledMessageModel import ScheduledMessageModel
 
 class DB:
     base = automap_base()
-    engine = sqlalchemy.create_engine(os.environ.get('DATABASE_URL').replace('postgres', 'postgresql'))
+    engine = sqlalchemy.create_engine(os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://'))
     base.prepare(autoload_with=engine, reflect=True)
     session = orm.Session(bind=engine)
 

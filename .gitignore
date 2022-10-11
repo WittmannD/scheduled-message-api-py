@@ -2,9 +2,9 @@
 
 .env
 .venv
-.env.production
-.env.development
 .flaskenv
+.env.*
+*.env.json
 env/
 venv/
 .vscode
