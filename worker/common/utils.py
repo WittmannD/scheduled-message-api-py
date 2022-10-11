@@ -32,7 +32,7 @@ class DB:
                 ScheduledMessageModel.status == 'await'
             )
         )
-        messages = query.all()
+        messages = query.order_by(ScheduledMessageModel.time_for_dispatch.asc()).all()
 
         for message in messages:
             message.status = 'processed'

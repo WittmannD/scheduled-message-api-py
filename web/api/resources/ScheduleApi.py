@@ -76,4 +76,4 @@ class ScheduleApi(Resource):
         except IntegrityError:
             db.session.rollback()
 
-        return make_response('', HTTPStatus.NO_CONTENT)
+        return make_response('ok', HTTPStatus.NO_CONTENT)
