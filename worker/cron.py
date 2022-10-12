@@ -27,8 +27,8 @@ async def worker(name, queue) -> None:
 
         dispatch_time = message.model.time_for_dispatch.replace(tzinfo=None)
 
-        while dispatch_time > datetime.utcnow():
-            await asyncio.sleep(0.01)
+        delay = (dispatch_time - datetime.utcnow()).total_seconds()
+        await asyncio.sleep(delay)
 
         await message.send()
 
