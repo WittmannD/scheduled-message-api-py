@@ -1,7 +1,7 @@
 import os
 from http import HTTPStatus
 
-from flask import make_response, current_app, jsonify
+from flask import make_response, jsonify
 from flask_restful import Resource
 from vk_api import VkApi
 
@@ -29,10 +29,6 @@ class ChatApi(Resource):
         kwargs.setdefault('peer_ids', args.get('peer_id'))
         kwargs.setdefault('v', VK_API_VERSION)
 
-        current_app.logger.info(kwargs)
         response = vk_api.messages.getConversationsById(**kwargs)
-
-        current_app.logger.info(response)
-        current_app.logger.info(response['items'])
 
         return make_response(jsonify(response['items']), HTTPStatus.OK)
